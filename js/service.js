@@ -1,5 +1,6 @@
 let workdayTab = {};
 
+//crhome stuff
 chrome.notifications.onClicked.addListener((notificationId) => {
   chrome.notifications.clear(notificationId);
   chrome.tabs.create(
@@ -14,34 +15,33 @@ chrome.notifications.onClicked.addListener((notificationId) => {
   );
 });
 
-const dailyReminder = (playSound) => {
-  chrome.notifications.create({
-    title: 'Hey, remember to fill your workday',
-    message: 'Click here to open workday',
-    type: 'basic',
-    iconUrl: '/icons/clock.png',
-    requireInteraction: true,
-  });
-  if (playSound) {
-    chrome.tts.speak('Hey, remember to fill your workday', { rate: 0.85 });
-  }
-};
+chrome.alarms.create({
+  periodInMinutes: 1,
+  when: Date.now(),
+});
 
-const weeklyReminder = (playSound) => {
-  chrome.notifications.create({
-    title: 'Hey, remember to review your week in workday',
-    message: 'Click here to open workday',
-    type: 'basic',
-    iconUrl: '/icons/clock.png',
-    requireInteraction: true,
-  });
-  if (playSound) {
-    chrome.tts.speak('Hey, remember to review your week in workday', {
-      rate: 0.85,
-    });
-  }
-};
+chrome.alarms.onAlarm.addListener(() => {
+  checkHour();
+});
 
+chrome.tabs.onUpdated.addListener((tabId, changes) => {
+  if (tabId === workdayTab.id && changes.url) {
+    if (changes.url.indexOf('home.htmld') !== -1) {
+      chrome.scripting.executeScript({
+        target: { tabId: workdayTab.id },
+        files: ['js/click-on-add-btn.js'],
+      });
+    }
+    if (changes.url.indexOf('d/task/') !== -1) {
+      chrome.scripting.executeScript({
+        target: { tabId: workdayTab.id },
+        files: ['js/click-on-today-btn.js'],
+      });
+    }
+  }
+});
+
+//reminder stuff
 const setDefaultConfig = () => {
   chrome.storage.local.get(['dailyTime'], (result) => {
     if (!result.dailyTime) {
@@ -69,58 +69,81 @@ const setDefaultConfig = () => {
   });
 };
 
+const dailyNotification = (playSound) => {
+  let title = 'Hey, remember to fill your workday';
+  chrome.notifications.getAll((notifications) => {
+    let notificationsKeys = Object.keys(notifications);
+    chrome.tts.stop();
+
+    for (let notificationId of notificationsKeys) {
+      chrome.notifications.clear(notificationId);
+    }
+
+    chrome.notifications.create({
+      title,
+      message: 'Click here to open workday',
+      type: 'basic',
+      iconUrl: '/icons/clock.png',
+      requireInteraction: true,
+    });
+
+    if (playSound) {
+      chrome.tts.speak(title, { rate: 0.85 });
+    }
+  });
+};
+
+const weeklyNotification = (playSound) => {
+  let title = 'Hey, remember to review your week in workday';
+
+  chrome.notifications.getAll((notifications) => {
+    let notificationsKeys = Object.keys(notifications);
+    chrome.tts.stop();
+
+    for (let notificationId of notificationsKeys) {
+      chrome.notifications.clear(notificationId);
+    }
+
+    chrome.notifications.create({
+      title,
+      message: 'Click here to open workday',
+      type: 'basic',
+      iconUrl: '/icons/clock.png',
+      requireInteraction: true,
+    });
+
+    if (playSound) {
+      chrome.tts.speak(title, {
+        rate: 0.85,
+      });
+    }
+  });
+};
+
 const checkHour = () => {
   const date = new Date();
-  const hours = date.getHours() < 10 ? '0' + date.getHours() : date.getHours();
-  const minutes =
-    date.getMinutes() < 10 ? '0' + date.getMinutes() : date.getMinutes();
+  const dateHour = date.getHours();
+  const dateMinutes = date.getMinutes();
+  const hours = dateHour < 10 ? '0' + dateHour : dateHour;
+  const minutes = dateMinutes < 10 ? '0' + dateMinutes : dateMinutes;
   const timeStr = hours + ':' + minutes;
-
-  console.log('hour check', timeStr);
 
   chrome.storage.local.get(
     ['dailyReminder', 'dailyTime', 'weeklyReminder', 'fridayTime', 'playSound'],
-    (result) => {
-      if (
-        result.dailyReminder &&
-        result.dailyTime &&
-        result.dailyTtime === timeStr
-      ) {
-        dailyReminder(result.playSound);
+    ({ dailyReminder, dailyTime, weeklyReminder, fridayTime, playSound }) => {
+      if (dailyReminder && dailyTime && dailyTime === timeStr) {
+        dailyNotification(playSound);
       }
       if (
-        result.weeklyReminder &&
-        result.weeklyTime &&
-        result.weeklyTime === timeStr &&
+        weeklyReminder &&
+        fridayTime &&
+        fridayTime === timeStr &&
         new Date().getDay() === 5
       ) {
-        weeklyReminder(result.playSound);
+        weeklyNotification(playSound);
       }
     }
   );
 };
 
-const init = () => {
-  setDefaultConfig();
-  checkHour();
-  setInterval(checkHour, 30 * 1000);
-
-  chrome.tabs.onUpdated.addListener((tabId, changes) => {
-    if (tabId === workdayTab.id && changes.url) {
-      if (changes.url.indexOf('home.htmld') !== -1) {
-        chrome.scripting.executeScript({
-          target: { tabId: workdayTab.id },
-          files: ['js/click-on-add-btn.js'],
-        });
-      }
-      if (changes.url.indexOf('d/task/') !== -1) {
-        chrome.scripting.executeScript({
-          target: { tabId: workdayTab.id },
-          files: ['js/click-on-today-btn.js'],
-        });
-      }
-    }
-  });
-};
-
-init();
+setDefaultConfig();

@@ -1,5 +1,6 @@
 <html>
   <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
     <style>
       * {
         font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
@@ -8,9 +9,7 @@
 
       body {
         width: 315px;
-        height: 90px;
         text-align: center;
-        border-radius: 8px;
       }
 
       #input-container {
@@ -18,28 +17,24 @@
         flex-direction: column;
       }
 
+      ::-webkit-calendar-menu {
+        display: block;
+        top: 0;
+        left: 0;
+        background: #0000;
+        position: absolute;
+        transform: scale(12);
+      }
+
       #title {
         padding: 0.5em;
         padding-top: 0;
-        font-size: 1.5em;
       }
 
       .timeInput {
         padding: 0.5em;
         font-size: 1em;
         min-width: 120px;
-      }
-
-      #saveBtn {
-        background-color: rgb(3, 155, 229);
-        color: white;
-        border: none;
-        padding: 0.8em;
-        cursor: pointer;
-        font-size: 1.1em;
-        margin-top: 0.5em;
-        margin-bottom: 0.5em;
-        border-radius: 4px;
       }
 
       .checkbox-container {
@@ -53,12 +48,27 @@
         justify-content: space-between;
       }
 
-      #showAlert {
-        margin-right: 0.5em;
+      #saveBtn {
+        background-color: rgb(3, 155, 229);
+        color: white;
+        border: none;
+        padding: 0.8em;
+        cursor: pointer;
+        font-size: 1.1em;
+        margin-top: 0.5em;
+        margin-bottom: 0.5em;
+        border-radius: 4px;
+        box-shadow: 0 4px #999;
       }
 
       #saveBtn:hover {
         background-color: rgb(2, 119, 189);
+      }
+
+      #saveBtn:active {
+        background-color: rgb(0, 94, 148);
+        box-shadow: 0 2px #666;
+        transform: translateY(2px);
       }
 
       .checkbox-label {
@@ -71,7 +81,7 @@
 
   <body>
     <div id="input-container">
-      <div id="title">Workday Reminder</div>
+      <h3>Workday Reminder</h3>
       <div class="checkbox-container">
         <div class="checkbox-label">
           <input type="checkbox" id="dailyReminder" />

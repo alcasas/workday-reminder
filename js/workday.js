@@ -20,22 +20,22 @@ const saveConfig = () => {
 
 document.addEventListener('DOMContentLoaded', () => {
   const saveBtn = document.getElementById('saveBtn');
-  const dailyTime = document.getElementById('dailyTime');
-  const fridayTime = document.getElementById('fridayTime');
-  const playSound = document.getElementById('playSound');
-  const dailyReminder = document.getElementById('dailyReminder');
-  const weeklyReminder = document.getElementById('weeklyReminder');
+  const dailyTimeEl = document.getElementById('dailyTime');
+  const fridayTimeEl = document.getElementById('fridayTime');
+  const playSoundEl = document.getElementById('playSound');
+  const dailyReminderEl = document.getElementById('dailyReminder');
+  const weeklyReminderEl = document.getElementById('weeklyReminder');
 
   saveBtn.addEventListener('click', saveConfig);
 
   chrome.storage.local.get(
     ['dailyTime', 'fridayTime', 'playSound', 'dailyReminder', 'weeklyReminder'],
-    (result) => {
-      dailyTime.value = result.dailyTime;
-      fridayTime.value = result.fridayTime;
-      playSound.checked = result.playSound;
-      dailyReminder.checked = result.dailyReminder;
-      weeklyReminder.checked = result.weeklyReminder;
+    ({ dailyReminder, dailyTime, weeklyReminder, fridayTime, playSound }) => {
+      dailyTimeEl.value = dailyTime;
+      fridayTimeEl.value = fridayTime;
+      playSoundEl.checked = playSound;
+      dailyReminderEl.checked = dailyReminder;
+      weeklyReminderEl.checked = weeklyReminder;
     }
   );
 });
