@@ -17,7 +17,6 @@ chrome.notifications.onClicked.addListener((notificationId) => {
 
 chrome.alarms.create({
   periodInMinutes: 1,
-  when: Date.now(),
 });
 
 chrome.alarms.onAlarm.addListener(() => {
