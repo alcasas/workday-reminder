@@ -1,8 +1,13 @@
 ## Improving Workday Reminder
 
-This is a chrome extension for Improving folks to remember to fill Workday, this shows up an alert and opens Workday in a new tab showing the modal form to capture a new activity.
+This is a chrome extension for Improving folks to remember to fill Workday, this shows up a notification and opens Workday in a new tab showing the modal form to capture a new activity.
 
-Hour and alert popup for reminder can be configured.
+### Configurable items:
+ - Display daily alerts and the hour
+ - Display weekly alerts and the hour (on Friday)
+ - Play sound
+
+### Installation
 
 You can clone the repo
 
@@ -14,4 +19,7 @@ Or download the compressed file and decompress it
 
 Then:
 
-Open [chrome://extensions](chrome://extensions) in Google Chrome, activate "developer mode", click on "Load unpackaged extension..." and select the folder where you cloned it or decompressed it.
+Open [chrome://extensions](chrome://extensions) in Google Chrome or [edge://extensions](edge://extensions) for Edge and then activate "developer mode", click on "Load unpackaged extension..." and select the folder where you cloned it or decompressed it.
+
+### Notes
+Remember to allow notifications for Edge/Chrome, if this is not allowed by the OS the notification will not appear, but sound will be played if enabled in configuration 
