@@ -68,8 +68,7 @@ const setDefaultConfig = () => {
   });
 };
 
-const dailyNotification = (playSound) => {
-  let title = 'Hey, remember to fill your workday';
+const createNotification = (title, playSound) => {
   chrome.notifications.getAll((notifications) => {
     let notificationsKeys = Object.keys(notifications);
     chrome.tts.stop();
@@ -92,33 +91,6 @@ const dailyNotification = (playSound) => {
   });
 };
 
-const weeklyNotification = (playSound) => {
-  let title = 'Hey, remember to review your week in workday';
-
-  chrome.notifications.getAll((notifications) => {
-    let notificationsKeys = Object.keys(notifications);
-    chrome.tts.stop();
-
-    for (let notificationId of notificationsKeys) {
-      chrome.notifications.clear(notificationId);
-    }
-
-    chrome.notifications.create({
-      title,
-      message: 'Click here to open workday',
-      type: 'basic',
-      iconUrl: '/icons/clock.png',
-      requireInteraction: true,
-    });
-
-    if (playSound) {
-      chrome.tts.speak(title, {
-        rate: 0.85,
-      });
-    }
-  });
-};
-
 const checkHour = () => {
   const date = new Date();
   const dateHour = date.getHours();
@@ -130,16 +102,39 @@ const checkHour = () => {
   chrome.storage.local.get(
     ['dailyReminder', 'dailyTime', 'weeklyReminder', 'fridayTime', 'playSound'],
     ({ dailyReminder, dailyTime, weeklyReminder, fridayTime, playSound }) => {
+      //handle daily notification
       if (dailyReminder && dailyTime && dailyTime === timeStr) {
-        dailyNotification(playSound);
+        createNotification('Hey, remember to fill your workday', playSound);
       }
+
+      //handle weekly notification
       if (
         weeklyReminder &&
         fridayTime &&
         fridayTime === timeStr &&
-        new Date().getDay() === 5
+        date.getDay() === 5
       ) {
-        weeklyNotification(playSound);
+        createNotification(
+          'Hey, remember to review your week in workday',
+          playSound
+        );
+      }
+
+      //handle period notification
+      let dayOfMonth = date.getDate();
+      let month = date.getMonth();
+      let finalDay = 30;
+      if (month === 1) {
+        finalDay = 28;
+      }
+      if (
+        timeStr === '16:50' &&
+        (dayOfMonth === 15 || dayOfMonth === finalDay)
+      ) {
+        createNotification(
+          'Hey, tomorrow is the Workday lockdown, please review current period',
+          playSound
+        );
       }
     }
   );
